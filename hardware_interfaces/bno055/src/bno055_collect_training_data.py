@@ -23,6 +23,7 @@ def updateTimeSeries(angular_velocity, linear_acceleration, orientation):
 	time_series[0] = [angular_velocity[0], angular_velocity[1], angular_velocity[2],
 		linear_acceleration[0], linear_acceleration[1], linear_acceleration[2],
 		orientation[0], orientation[1], orientation[2], orientation[3]]
+	print(time_series)
 
 	#write the time series into a dataframe every time 20 rows are added
 	if stepCounter == 20:
@@ -98,11 +99,7 @@ def main():
 				time.sleep(0.01)
 
 		if(attempts != 4):
-			print(sys)
-			#info.accelCalibration = accel
-			#info.gyroCalibration = gyro
-			#info.magnoCalibration = mag
-			#info.tempC = temp_c
+			print(accel)
 
 
 		attempts = 0
