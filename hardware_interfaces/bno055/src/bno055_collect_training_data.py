@@ -6,9 +6,11 @@ import pandas as pd
 
 #time series
 time_series = np.zeros((200, 10)) #data type of floats with shape 200, 10
+df = pd.DataFrame(columns=['time series', 'label'])
 
 #builds the timeseries and writes it to a csv file
 #each input is a tuple of lengths 3, 3, 4 respectively
+stepCounter = 0 #count steps so that each 20 samples df can be updated
 def updateArray(angular_velocity, linear_acceleration, orientation):
 	#collects a finte n-dimensional time series to store IMU data for immediate analysis by nerual network
 	#once collected the time series will be stored in a csv file with any action labels that can be usde for training
@@ -21,9 +23,14 @@ def updateArray(angular_velocity, linear_acceleration, orientation):
 		linear_acceleration[0], linear_acceleration[1], linear_acceleration[2],
 		orientation[0], orientation[1], orientation[2], orientation[3]]
 
-	#write the time series into a csv file
+	#write the time series into a dataframe every time 20 rows are added
+	if stepCounter == 20:
+		label = "test"
+		df.append([time_series, label])
+		print(df)
+		stepCounter = 0
 
-
+	stepCounter += 1
 
 
 def main():
@@ -58,7 +65,7 @@ def main():
 	# Print out an error if system status is in error mode.
 	if(status == 0x01):
 		print('System error: %s', error)
-   		print('See datasheet section 4.3.59 for the meaning.')
+		print('See datasheet section 4.3.59 for the meaning.')
 
 	# Print BNO055 software revision and other diagnostic data.
 	try:
