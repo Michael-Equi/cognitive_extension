@@ -1,0 +1,28 @@
+name: cognitive_extension
+channels:
+- defaults
+dependencies:
+- blas=1.1=openblas
+- ca-certificates=2018.8.24=0
+- certifi=2018.8.24=py36_1
+- libgfortran=3.0.0=0
+- ncurses=6.1=h4f752ac_1
+- numpy=1.15.1=py36_blas_openblash28c00a7_1
+- openblas=0.2.19=0
+- openssl=1.0.2r=hdff2a78_0
+- pandas=0.23.4=py36h6b76cdf_0
+- pip=18.0=py36_1
+- pyserial=3.4=py_1
+- python=3.6.6=hd0568c0_1
+- python-dateutil=2.6.1=py_0
+- pytz=2018.5=py_0
+- readline=7.0=hcb560eb_1
+- setuptools=40.2.0=py36_0
+- six=1.11.0=py36_1
+- sqlite=3.24.0=hfcb1bcf_1
+- tk=8.6.8=h849d6a0_0
+- wheel=0.31.1=py36_1
+- xz=5.2.4=hdff2a78_1
+- zlib=1.2.11=hdff2a78_1003
+prefix: /home/pi/berryconda3/envs/cognitive_extension
+
