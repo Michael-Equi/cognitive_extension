@@ -51,7 +51,7 @@ def addMemory():
 	global label
 	global df
 	if not np.dot([time_series[199]], [1,1,1,1,1,1,1,1,1,1]) == 0: #make sure that the time_series has data
-		newDf = pd.DataFrame({"data_series":[time_series], "label":[label]})
+		newDf = pd.DataFrame({"time series":[time_series], "label":[label]})
 		df = df.append(newDf, ignore_index=True, sort=False) #update dataframe
 
 
