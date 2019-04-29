@@ -23,7 +23,6 @@ def updateTimeSeries(angular_velocity, linear_acceleration, orientation):
 	time_series[0] = [angular_velocity[0], angular_velocity[1], angular_velocity[2],
 		linear_acceleration[0], linear_acceleration[1], linear_acceleration[2],
 		orientation[0], orientation[1], orientation[2], orientation[3]]
-	print(time_series)
 
 	#write the time series into a dataframe every time 20 rows are added
 	if stepCounter == 20:
@@ -99,7 +98,7 @@ def main():
 				time.sleep(0.01)
 
 		if(attempts != 4):
-			print(accel)
+			print(sys)
 
 
 		attempts = 0
@@ -107,6 +106,7 @@ def main():
 			try:
     				# Orientation as a quaternion:
 				orientation = sensor.read_quaternion()
+			
 
 				# Gyroscope data (in degrees per second converted to radians per second):
 				angular_vel = sensor.read_gyroscope()
@@ -114,6 +114,7 @@ def main():
 				# Linear acceleration data (i.e. acceleration from movement, not gravity--
     				# returned in meters per second squared):
 				linear_accel = sensor.read_linear_acceleration()
+				print(orientation)
 				break
 			except Exception as e:
 				print('Failed to read BNO055 data!', e)
@@ -121,11 +122,10 @@ def main():
 				time.sleep(0.01)
 
 		if(attempts != 4):
-			print(angular_vel)
 			updateTimeSeries(angular_vel, linear_accel, orientation)
 
 
-		time.sleep(0.05)
+		time.sleep(0.01) #about 100Hz if there are no read problems
 
 if __name__ == '__main__':
 	main()
