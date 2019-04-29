@@ -31,7 +31,9 @@ def addMemory():
 	global time_series
 	global label
 	if not np.dot([time_series[199]], [1,1,1,1,1,1,1,1,1,1]) == 0: #make sure that the time_series has data
-		df = df.append(pd.DataFrame({"data_series":[time_series], "label":[label]})) #update dataframe
+		newDf = pd.DataFrame({"data_series":[time_series], "label":[label]})
+		print(newDf)
+		df = df.append(newDf) #update dataframe
 
 
 def signal_handler(signal, frame):
@@ -87,10 +89,9 @@ def main():
 	print('Magnetometer ID:    ', hex(mag))
 	print('Gyroscope ID:       ', hex(gyro))
 
-	print('Reading BNO055 data...')
+	print('Reading BNO055 data...\n\n')
 
 	while True:
-
 		# Update data
 		attempts = 0
 		while(attempts < 4):
@@ -104,16 +105,11 @@ def main():
 				attempts += 1
 				time.sleep(0.01)
 
-		if(attempts != 4):
-			print(sys)
-
-
 		attempts = 0
 		while(attempts < 4):
 			try:
     			# Orientation as a quaternion:
 				orientation = sensor.read_quaternion()
-			
 
 				# Gyroscope data (in degrees per second converted to radians per second):
 				angular_vel = sensor.read_gyroscope()
@@ -121,7 +117,6 @@ def main():
 				# Linear acceleration data (i.e. acceleration from movement, not gravity--
     			# returned in meters per second squared):
 				linear_accel = sensor.read_linear_acceleration()
-				print(orientation)
 				break
 			except Exception as e:
 				print('Failed to read BNO055 data!', e)
@@ -129,8 +124,8 @@ def main():
 				time.sleep(0.01)
 
 		if(attempts != 4):
-			updateTimeSeries(angular_vel, linear_accel, orientation)
-
+			if sys > 1: #if system calibrartion is 2 or 3
+				updateTimeSeries(angular_vel, linear_accel, orientation)
 
 		time.sleep(0.05) #~20Hz
 
