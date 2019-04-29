@@ -49,9 +49,10 @@ def updateTimeSeries(angular_velocity, linear_acceleration, orientation):
 def addMemory():
 	global time_series
 	global label
+	global df
 	if not np.dot([time_series[199]], [1,1,1,1,1,1,1,1,1,1]) == 0: #make sure that the time_series has data
 		newDf = pd.DataFrame({"data_series":[time_series], "label":[label]})
-		df = df.append(newDf) #update dataframe
+		df = df.append(newDf, ignore_index=True, sort=False) #update dataframe
 
 
 def signal_handler(signal, frame):
@@ -147,7 +148,7 @@ def main():
 			if sys > 1: #if system calibrartion is 2 or 3
 				updateTimeSeries(angular_vel, linear_accel, orientation)
 
-		time.sleep(0.05) #~20Hz
+		time.sleep(0.01) #~100Hz
 
 t = perpetualTimer(0.1,addMemory)
 if __name__ == '__main__':
