@@ -3,21 +3,23 @@ import time
 import BNO055
 import numpy as np
 import pandas as pd
+import datetime
+import signal
+import threading
 
 #time series
 time_series = np.zeros((200, 10)) #data type of floats with shape 200, 10
+label = 0
 df = pd.DataFrame(columns=['time series', 'label'])
 
 #builds the timeseries and writes it to a csv file
 #each input is a tuple of lengths 3, 3, 4 respectively
-stepCounter = 0 #count steps so that each 20 samples df can be updated
 def updateTimeSeries(angular_velocity, linear_acceleration, orientation):
 	#collects a finte n-dimensional time series to store IMU data for immediate analysis by nerual network
 	#once collected the time series will be stored in a csv file with any action labels that can be usde for training
 
 	#The finite time series is 2 seconds long given that the sensor is collecting data at 100Hz (timseries is 200 slots)
 	global time_series
-	global stepCounter
 	np.roll(time_series, 0)
 	#x, y, z, X, Y, Z, x`, y`, z`, w`
 	time_series[0] = [angular_velocity[0], angular_velocity[1], angular_velocity[2],
@@ -25,15 +27,21 @@ def updateTimeSeries(angular_velocity, linear_acceleration, orientation):
 		orientation[0], orientation[1], orientation[2], orientation[3]]
 	print(time_series)
 
-	#write the time series into a dataframe every time 20 rows are added
-	if stepCounter == 20:
-		label = "test"
-		df.append([time_series, label])
-		print(df)
-		stepCounter = 0
+	step_coutner += 1
 
-	stepCounter += 1
+def addMemory():
+	global time_series
+	global label
+	if not np.dot(time_series[199], [1]) == 0: #make sure that the time_series has data
+		df = df.append(pd.DataFrame({"data_series":[time_series], "label":[label]})) #update dataframe
 
+
+def signal_handler(signal, frame):
+	file_name = str(datetime.datetime.now()) + ".csv"
+    print('Saving file to ' + file_name)
+	df.to_csv(file_name, index=None, header=True)
+	print("File saved!")
+    sys.exit(0)
 
 def main():
 
@@ -94,7 +102,7 @@ def main():
 				temp_c = sensor.read_temp()
 				break
 			except Exception as e:
-				print('Failed to read BNO055 calibration stat and temp! %s', e)
+				print('Failed to read BNO055 calibration stat and temp! ', e)
 				attempts += 1
 				time.sleep(0.01)
 
@@ -105,14 +113,14 @@ def main():
 		attempts = 0
 		while(attempts < 4):
 			try:
-    				# Orientation as a quaternion:
+    			# Orientation as a quaternion:
 				orientation = sensor.read_quaternion()
 
 				# Gyroscope data (in degrees per second converted to radians per second):
 				angular_vel = sensor.read_gyroscope()
 
 				# Linear acceleration data (i.e. acceleration from movement, not gravity--
-    				# returned in meters per second squared):
+    			# returned in meters per second squared):
 				linear_accel = sensor.read_linear_acceleration()
 				break
 			except Exception as e:
@@ -125,9 +133,12 @@ def main():
 			updateTimeSeries(angular_vel, linear_accel, orientation)
 
 
-		time.sleep(0.05)
+		time.sleep(0.05) #~20Hz
 
 if __name__ == '__main__':
+	signal.signal(signal.SIGINT, signal_handler)
+	timer = threading.Timer(0.1, addMemory) #add memory to datafram every 0.1 seconds
+	timer.start()
 	main()
 
 # Unused functions
