@@ -6,6 +6,7 @@ import pandas as pd
 import datetime
 import signal
 import threading
+import sys
 
 #time series
 time_series = np.zeros((200, 10)) #data type of floats with shape 200, 10
@@ -26,20 +27,18 @@ def updateTimeSeries(angular_velocity, linear_acceleration, orientation):
 		linear_acceleration[0], linear_acceleration[1], linear_acceleration[2],
 		orientation[0], orientation[1], orientation[2], orientation[3]]
 
-	step_coutner += 1
-
 def addMemory():
 	global time_series
 	global label
-	if not np.dot(time_series[199], [1]) == 0: #make sure that the time_series has data
+	if not np.dot([time_series[199]], [1,1,1,1,1,1,1,1,1,1]) == 0: #make sure that the time_series has data
 		df = df.append(pd.DataFrame({"data_series":[time_series], "label":[label]})) #update dataframe
 
 
 def signal_handler(signal, frame):
-	file_name = str(datetime.datetime.now()) + ".csv"
+    file_name = str(datetime.datetime.now()) + ".csv"
     print('Saving file to ' + file_name)
-	df.to_csv(file_name, index=None, header=True)
-	print("File saved!")
+    df.to_csv(file_name, index=None, header=True)
+    print("File saved!")
     sys.exit(0)
 
 def main():
