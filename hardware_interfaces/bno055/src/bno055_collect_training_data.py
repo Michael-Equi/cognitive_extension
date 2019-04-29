@@ -56,7 +56,7 @@ def addMemory():
 
 def signal_handler(signal, frame):
     global t
-    file_name = str(datetime.datetime.now()) + ".csv"
+    file_name =  "data/" + str(datetime.datetime.now()) + ".csv"
     print('Saving file to ' + file_name)
     df.to_csv(file_name, index=None, header=True)
     print("File saved!")
@@ -148,8 +148,8 @@ def main():
 				updateTimeSeries(angular_vel, linear_accel, orientation)
 
 		time.sleep(0.05) #~20Hz
-		
-t = perpetualTimer(0.1,addMemory)		
+
+t = perpetualTimer(0.1,addMemory)
 if __name__ == '__main__':
 	signal.signal(signal.SIGINT, signal_handler)
 	#add memory to datafram every 0.1 seconds
