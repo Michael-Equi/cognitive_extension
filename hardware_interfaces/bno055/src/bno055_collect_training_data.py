@@ -1,12 +1,8 @@
-import math
-import time
 import BNO055
 import numpy as np
 import pandas as pd
-import datetime
-import signal
 from threading import Timer,Thread,Event
-import sys
+import sys, termios, tty, os, time, signal, math, datetime
 
 #convenience class to run a timer on an interupt
 class perpetualTimer():
@@ -27,6 +23,20 @@ class perpetualTimer():
    def cancel(self):
       self.thread.cancel()
 
+#convenience funtin for reading keypresses so that the data label can be easily updated
+def getch():
+    fd = sys.stdin.fileno()
+    old_settings = termios.tcgetattr(fd)
+    try:
+        tty.setraw(sys.stdin.fileno())
+        ch = sys.stdin.read(1)
+
+    finally:
+        termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
+    if ch == "": #ctrl-c
+        exit()
+    return ch
+
 #time series
 time_series = np.zeros((200, 10)) #data type of floats with shape 200, 10
 label = 0
@@ -46,10 +56,23 @@ def updateTimeSeries(angular_velocity, linear_acceleration, orientation):
 		linear_acceleration[0], linear_acceleration[1], linear_acceleration[2],
 		orientation[0], orientation[1], orientation[2], orientation[3]]
 
-def addMemory():
-	global time_series
+def inputHandler():
 	global label
-	global df
+	while True:
+		char = getch()
+		if(char == 't'): #ear twich
+			label = 1
+		elif(char == 'o'): #taking c-ext off
+			label = 2
+		elif(char == 'i'): #putting c-ext on
+			label = 3
+		else:
+			label = 0
+		print("label: " + str(label) + " selected")
+
+
+def addMemory():
+	global time_series, df, label
 	if not np.dot([time_series[199]], [1,1,1,1,1,1,1,1,1,1]) == 0: #make sure that the time_series has data
 		newDf = pd.DataFrame({"time series":[time_series], "label":[label]})
 		df = df.append(newDf, ignore_index=True, sort=False) #update dataframe
@@ -151,10 +174,12 @@ def main():
 		time.sleep(0.01) #~100Hz
 
 t = perpetualTimer(0.1,addMemory)
+input_handler = Thread(target=inputHandler, daemon=True)
 if __name__ == '__main__':
 	signal.signal(signal.SIGINT, signal_handler)
 	#add memory to datafram every 0.1 seconds
 	t.start()
+	input_handler.start()
 	main()
 
 # Unused functions
