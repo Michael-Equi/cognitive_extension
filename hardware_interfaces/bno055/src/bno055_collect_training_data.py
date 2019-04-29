@@ -40,7 +40,7 @@ def updateTimeSeries(angular_velocity, linear_acceleration, orientation):
 
 	#The finite time series is 2 seconds long given that the sensor is collecting data at 100Hz (timseries is 200 slots)
 	global time_series
-	np.roll(time_series, 0)
+	time_series = np.roll(time_series, 2)
 	#x, y, z, X, Y, Z, x`, y`, z`, w`
 	time_series[0] = [angular_velocity[0], angular_velocity[1], angular_velocity[2],
 		linear_acceleration[0], linear_acceleration[1], linear_acceleration[2],
@@ -51,15 +51,16 @@ def addMemory():
 	global label
 	if not np.dot([time_series[199]], [1,1,1,1,1,1,1,1,1,1]) == 0: #make sure that the time_series has data
 		newDf = pd.DataFrame({"data_series":[time_series], "label":[label]})
-		print(newDf)
 		df = df.append(newDf) #update dataframe
 
 
 def signal_handler(signal, frame):
+    global t
     file_name = str(datetime.datetime.now()) + ".csv"
     print('Saving file to ' + file_name)
     df.to_csv(file_name, index=None, header=True)
     print("File saved!")
+    t.cancel()
     sys.exit(0)
 
 def main():
@@ -147,11 +148,12 @@ def main():
 				updateTimeSeries(angular_vel, linear_accel, orientation)
 
 		time.sleep(0.05) #~20Hz
-
+		
+t = perpetualTimer(0.1,addMemory)		
 if __name__ == '__main__':
 	signal.signal(signal.SIGINT, signal_handler)
-	t = perpetualTimer(0.1,addMemory) #add memory to datafram every 0.1 seconds
-	timer.start()
+	#add memory to datafram every 0.1 seconds
+	t.start()
 	main()
 
 # Unused functions
