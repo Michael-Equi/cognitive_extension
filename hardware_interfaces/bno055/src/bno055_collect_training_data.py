@@ -5,8 +5,27 @@ import numpy as np
 import pandas as pd
 import datetime
 import signal
-import threading
+from threading import Timer,Thread,Event
 import sys
+
+#convenience class to run a timer on an interupt
+class perpetualTimer():
+
+   def __init__(self,t,hFunction):
+      self.t=t
+      self.hFunction = hFunction
+      self.thread = Timer(self.t,self.handle_function)
+
+   def handle_function(self):
+      self.hFunction()
+      self.thread = Timer(self.t,self.handle_function)
+      self.thread.start()
+
+   def start(self):
+      self.thread.start()
+
+   def cancel(self):
+      self.thread.cancel()
 
 #time series
 time_series = np.zeros((200, 10)) #data type of floats with shape 200, 10
@@ -70,7 +89,7 @@ def main():
 	except Exception as e:
 		print('Failed to read BNO055 system status! ', e)
 
-	print('System status: %s', status)
+	print('\nSystem status: ', status)
 	print('Self test result (0x0F is normal): ', hex(self_test))
 	# Print out an error if system status is in error mode.
 	if(status == 0x01):
@@ -131,7 +150,7 @@ def main():
 
 if __name__ == '__main__':
 	signal.signal(signal.SIGINT, signal_handler)
-	timer = threading.Timer(0.1, addMemory) #add memory to datafram every 0.1 seconds
+	t = perpetualTimer(0.1,addMemory) #add memory to datafram every 0.1 seconds
 	timer.start()
 	main()
 
